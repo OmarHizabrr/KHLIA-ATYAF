@@ -30,6 +30,12 @@ export function SiteHeader() {
   }, []);
 
   const isAdmin = useMemo(() => isAdminUser(user), [user]);
+  const adminLabel = useMemo(() => {
+    if (!user) return "حساب الإدارة";
+    if (user.displayName?.trim()) return user.displayName.trim();
+    if (user.email?.trim()) return user.email.trim();
+    return "حساب الإدارة";
+  }, [user]);
 
   async function onLogout() {
     setBusy(true);
@@ -63,6 +69,9 @@ export function SiteHeader() {
         <div className="flex items-center gap-2">
           {ready && isAdmin ? (
             <>
+              <span className="hidden rounded-full bg-zinc-100 px-3 py-2 text-xs font-semibold text-zinc-700 md:inline-flex">
+                {adminLabel}
+              </span>
               <Link
                 href="/admin"
                 className="rounded-full border border-zinc-200 px-4 py-2 text-sm font-semibold text-zinc-800 hover:bg-zinc-50"
