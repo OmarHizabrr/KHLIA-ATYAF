@@ -31,7 +31,7 @@ export function SiteHeader() {
 
         <div className="flex items-center gap-2">
           <Link
-            href="/admin"
+            href="/admin/login"
             className="rounded-full border border-zinc-200 px-4 py-2 text-sm font-semibold text-zinc-800 hover:bg-zinc-50"
           >
             الإدارة

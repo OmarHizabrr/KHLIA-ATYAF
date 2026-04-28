@@ -48,6 +48,10 @@ export default function AdminLoginPage() {
             {busy ? "جاري تسجيل الدخول…" : "تسجيل الدخول عبر Google"}
           </button>
 
+          <p className="mt-3 text-center text-xs text-zinc-500">
+            سيتم فتح نافذة Google مباشرة عند الضغط.
+          </p>
+
           <div className="mt-4 text-center text-sm text-zinc-600">
             <Link href="/" className="font-semibold text-zinc-900">
               العودة للمتجر

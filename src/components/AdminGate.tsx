@@ -24,7 +24,12 @@ export function AdminGate({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!ready) return;
-    if (allowed) return;
+    if (allowed) {
+      if (pathname === "/admin/login") {
+        router.replace("/admin");
+      }
+      return;
+    }
     if (pathname === "/admin/login") return;
     router.replace("/admin/login");
   }, [allowed, pathname, ready, router]);
