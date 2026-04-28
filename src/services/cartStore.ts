@@ -25,3 +25,28 @@ export function clearCart() {
   window.localStorage.removeItem(KEY);
 }
 
+export function addToCart(item: OrderItem) {
+  const items = getCartItems();
+  const idx = items.findIndex((x) => x.productId === item.productId);
+  if (idx >= 0) {
+    const next = [...items];
+    next[idx] = { ...next[idx], qty: (next[idx].qty || 0) + (item.qty || 1) };
+    setCartItems(next);
+    return;
+  }
+  setCartItems([{ ...item, qty: item.qty || 1 }, ...items]);
+}
+
+export function updateCartQty(productId: string, qty: number) {
+  const items = getCartItems();
+  const next = items
+    .map((x) => (x.productId === productId ? { ...x, qty } : x))
+    .filter((x) => (x.qty || 0) > 0);
+  setCartItems(next);
+}
+
+export function removeFromCart(productId: string) {
+  const items = getCartItems();
+  setCartItems(items.filter((x) => x.productId !== productId));
+}
+

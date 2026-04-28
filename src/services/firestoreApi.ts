@@ -21,7 +21,7 @@ import {
   type DocumentData,
 } from "firebase/firestore";
 import { app } from "@/firebase";
-import type { Product } from "@/types/store";
+import type { Banner, Category, Product } from "@/types/store";
 
 const db = getFirestore(app);
 
@@ -102,17 +102,17 @@ class FirestoreApi {
   // ==============================
 
   getProductsCollection() {
-    return this.getCollection("products");
+    return this.getCollection<Product>("products");
   }
   getProductDoc(productId: string) {
-    return this.getDocument("products", productId);
+    return this.getDocument<Product>("products", productId);
   }
 
   getCategoriesCollection() {
-    return this.getCollection("categories");
+    return this.getCollection<Category>("categories");
   }
   getCategoryDoc(categoryId: string) {
-    return this.getDocument("categories", categoryId);
+    return this.getDocument<Category>("categories", categoryId);
   }
 
   getOrdersCollection() {
@@ -123,10 +123,10 @@ class FirestoreApi {
   }
 
   getBannersCollection() {
-    return this.getCollection("banners");
+    return this.getCollection<Banner>("banners");
   }
   getBannerDoc(bannerId: string) {
-    return this.getDocument("banners", bannerId);
+    return this.getDocument<Banner>("banners", bannerId);
   }
 
   getSettingsDoc(docId = "global") {
@@ -229,7 +229,19 @@ class FirestoreApi {
       orderBy("createdAt", newestFirst ? "desc" : "asc"),
       limit(200),
     ];
-    return this.buildQuery(this.getProductsCollection() as unknown as CollectionReference<Product>, constraints);
+    return this.buildQuery(this.getProductsCollection(), constraints);
+  }
+
+  categoriesQuery({ ordered = true }: { ordered?: boolean } = {}) {
+    const constraints: QueryConstraint[] = [];
+    if (ordered) constraints.push(orderBy("sortOrder", "asc"));
+    constraints.push(limit(200));
+    return this.buildQuery(this.getCategoriesCollection(), constraints);
+  }
+
+  bannersQuery() {
+    const constraints: QueryConstraint[] = [orderBy("title", "asc"), limit(200)];
+    return this.buildQuery(this.getBannersCollection(), constraints);
   }
 }
 

@@ -1,12 +1,37 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { SiteHeader } from "@/components/SiteHeader";
+import FirestoreApi from "@/services/firestoreApi";
+import { BannerCarousel } from "@/components/BannerCarousel";
+import type { Banner } from "@/types/store";
 
 export default function Home() {
+  const api = FirestoreApi.Api;
+  const [banners, setBanners] = useState<Banner[]>([]);
+
+  useEffect(() => {
+    const unsub = api.subscribeSnapshot(
+      api.bannersQuery(),
+      (snap) => {
+        const qs = snap as any;
+        setBanners(((qs.docs ?? []) as any[]).map((d) => d.data()) as Banner[]);
+      },
+      () => undefined,
+    );
+    return () => unsub();
+  }, [api]);
+
   return (
     <div className="flex min-h-full flex-col bg-zinc-50">
       <SiteHeader />
 
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10">
+        <div className="mb-6">
+          <BannerCarousel banners={banners} />
+        </div>
+
         <section className="overflow-hidden rounded-3xl border border-zinc-200 bg-white">
           <div className="grid grid-cols-1 gap-10 p-8 md:grid-cols-2 md:p-12">
             <div className="flex flex-col justify-center gap-5">
