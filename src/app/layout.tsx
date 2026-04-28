@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "خليطة أطياف | KHLIA ATYAF",
+  title: "خلية أطياف | KHLIA ATYAF",
   description:
     "منصة متجر إلكتروني حديثة تعمل على الجوال والويب ويمكن تثبيتها كتطبيق (PWA).",
 };

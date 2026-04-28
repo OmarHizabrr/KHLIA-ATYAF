@@ -8,7 +8,7 @@ import { getStoreSettings, saveStoreSettings } from "@/services/settingsApi";
 
 export default function AdminSettingsPage() {
   const [form, setForm] = useState<StoreSettings>({
-    storeName: "خليطة أطياف",
+    storeName: "خلية أطياف",
     logo: "/logo.png",
     whatsapp: "",
     phone: "",
@@ -81,7 +81,7 @@ export default function AdminSettingsPage() {
                       setForm((p) => ({ ...p, storeName: e.target.value }))
                     }
                     className="h-12 rounded-2xl border border-zinc-200 px-4 outline-none focus:border-zinc-400"
-                    placeholder="خليطة أطياف"
+                    placeholder="خلية أطياف"
                   />
                 </label>
 

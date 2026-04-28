@@ -37,7 +37,7 @@ export default function Home() {
           <div className="grid grid-cols-1 gap-10 p-8 md:grid-cols-2 md:p-12">
             <div className="flex flex-col justify-center gap-5">
               <h1 className="text-3xl font-bold leading-[1.35] text-zinc-900 md:text-4xl">
-                خليطة أطياف
+                خلية أطياف
                 <span className="block text-zinc-500">متجر إلكتروني حديث</span>
               </h1>
               <p className="text-base leading-8 text-zinc-600">

@@ -4,7 +4,7 @@ import type { StoreSettings } from "@/types/store";
 const api = FirestoreApi.Api;
 
 const DEFAULT_SETTINGS: StoreSettings = {
-  storeName: "خليطة أطياف",
+  storeName: "خلية أطياف",
   logo: "/logo.png",
   whatsapp: "",
   phone: "",

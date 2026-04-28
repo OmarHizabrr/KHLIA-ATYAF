@@ -1,4 +1,10 @@
-import { onAuthStateChanged, signInWithEmailAndPassword, signOut, type User } from "firebase/auth";
+import {
+  GoogleAuthProvider,
+  onAuthStateChanged,
+  signInWithPopup,
+  signOut,
+  type User,
+} from "firebase/auth";
 import { auth } from "@/firebase";
 
 function normalizeList(value: string | undefined) {
@@ -19,8 +25,10 @@ export function subscribeAuth(onChange: (user: User | null) => void) {
   return onAuthStateChanged(auth, onChange);
 }
 
-export async function adminSignIn(email: string, password: string) {
-  const cred = await signInWithEmailAndPassword(auth, email, password);
+export async function adminSignInWithGoogle() {
+  const provider = new GoogleAuthProvider();
+  provider.setCustomParameters({ prompt: "select_account" });
+  const cred = await signInWithPopup(auth, provider);
   if (!isAdminUser(cred.user)) {
     await signOut(auth);
     throw new Error("ليس لديك صلاحية الدخول.");
