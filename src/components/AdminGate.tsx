@@ -8,6 +8,7 @@ import type { User } from "firebase/auth";
 export function AdminGate({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
+  const isLoginRoute = pathname === "/admin/login";
 
   const [user, setUser] = useState<User | null>(null);
   const [ready, setReady] = useState(false);
@@ -25,14 +26,19 @@ export function AdminGate({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!ready) return;
     if (allowed) {
-      if (pathname === "/admin/login") {
+      if (isLoginRoute) {
         router.replace("/admin");
       }
       return;
     }
-    if (pathname === "/admin/login") return;
+    if (isLoginRoute) return;
     router.replace("/admin/login");
-  }, [allowed, pathname, ready, router]);
+  }, [allowed, isLoginRoute, ready, router]);
+
+  // صفحة تسجيل الدخول يجب أن تظهر مباشرة حتى لو تأخر تحقق Firebase.
+  if (isLoginRoute) {
+    return <>{children}</>;
+  }
 
   if (!ready) {
     return (
