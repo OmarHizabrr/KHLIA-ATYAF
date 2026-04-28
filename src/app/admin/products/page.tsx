@@ -225,6 +225,15 @@ export default function AdminProductsPage() {
                   المنتج نشط
                 </label>
 
+                <label className="flex items-center gap-3 text-sm font-semibold text-zinc-800">
+                  <input
+                    type="checkbox"
+                    checked={Boolean(draft.isFeatured)}
+                    onChange={(e) => setDraft((p) => ({ ...p, isFeatured: e.target.checked }))}
+                  />
+                  منتج مميز
+                </label>
+
                 <label className="grid gap-2 text-sm font-semibold text-zinc-800">
                   رفع صورة (اختياري)
                   <input

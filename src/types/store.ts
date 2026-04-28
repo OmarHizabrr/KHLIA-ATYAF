@@ -24,6 +24,7 @@ export type Product = {
   features: string[];
   stock: number;
   isActive: boolean;
+  isFeatured?: boolean;
   createdAt?: unknown;
 };
 

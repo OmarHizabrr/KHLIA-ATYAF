@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { SiteHeader } from "@/components/SiteHeader";
 import FirestoreApi from "@/services/firestoreApi";
 import { BannerCarousel } from "@/components/BannerCarousel";
+import { HomeSections } from "@/components/HomeSections";
 import type { Banner } from "@/types/store";
 
 export default function Home() {
@@ -91,6 +92,8 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        <HomeSections />
       </main>
     </div>
   );

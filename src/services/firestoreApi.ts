@@ -224,6 +224,25 @@ class FirestoreApi {
     return this.buildQuery(this.getProductsCollection(), constraints);
   }
 
+  featuredProductsQuery() {
+    const constraints: QueryConstraint[] = [
+      where("isActive", "==", true),
+      where("isFeatured", "==", true),
+      orderBy("createdAt", "desc"),
+      limit(12),
+    ];
+    return this.buildQuery(this.getProductsCollection(), constraints);
+  }
+
+  latestProductsQuery() {
+    const constraints: QueryConstraint[] = [
+      where("isActive", "==", true),
+      orderBy("createdAt", "desc"),
+      limit(12),
+    ];
+    return this.buildQuery(this.getProductsCollection(), constraints);
+  }
+
   productsAdminQuery({ newestFirst = true }: { newestFirst?: boolean } = {}) {
     const constraints: QueryConstraint[] = [
       orderBy("createdAt", newestFirst ? "desc" : "asc"),

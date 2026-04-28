@@ -15,6 +15,7 @@ export function newProductDraft(): Product {
     features: [],
     stock: 0,
     isActive: true,
+    isFeatured: false,
     createdAt: undefined,
   };
 }
