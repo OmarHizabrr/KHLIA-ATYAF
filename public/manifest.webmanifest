@@ -1,0 +1,21 @@
+{
+  "name": "خليطة أطياف | KHLIA ATYAF",
+  "short_name": "خليطة أطياف",
+  "description": "منصة متجر إلكتروني حديثة تعمل على الجوال والويب ويمكن تثبيتها كتطبيق (PWA).",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#37687E",
+  "dir": "rtl",
+  "lang": "ar",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
+
