@@ -6,6 +6,8 @@ import { SiteHeader } from "@/components/SiteHeader";
 import FirestoreApi from "@/services/firestoreApi";
 import type { Order, OrderStatus } from "@/types/store";
 import { updateOrderStatus } from "@/services/ordersApi";
+import { docsFromSnapshot } from "@/services/snapshot";
+import type { CollectionReference } from "firebase/firestore";
 
 const api = FirestoreApi.Api;
 const statuses: OrderStatus[] = ["جديد", "قيد التنفيذ", "تم التجهيز", "تم التسليم"];
@@ -16,13 +18,11 @@ export default function AdminOrdersPage() {
   const [filter, setFilter] = useState<OrderStatus | "الكل">("الكل");
 
   useEffect(() => {
-    const q = api.buildQuery(api.getOrdersCollection() as any, []);
+    const q = api.buildQuery(api.getOrdersCollection() as CollectionReference<Order>, []);
     const unsub = api.subscribeSnapshot(
       q,
       (snap) => {
-        const qs = snap as any;
-        const next: Order[] = (qs.docs ?? []).map((d: any) => d.data()) as Order[];
-        setItems(next);
+        setItems(docsFromSnapshot<Order>(snap));
         setLoading(false);
       },
       () => setLoading(false),

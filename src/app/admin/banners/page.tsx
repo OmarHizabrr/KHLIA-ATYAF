@@ -7,6 +7,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import FirestoreApi from "@/services/firestoreApi";
 import type { Banner } from "@/types/store";
 import { deleteBanner, newBannerDraft, upsertBanner } from "@/services/bannersApi";
+import { docsFromSnapshot } from "@/services/snapshot";
 import { uploadPublicImage } from "@/services/storageApi";
 
 const api = FirestoreApi.Api;
@@ -26,9 +27,7 @@ export default function AdminBannersPage() {
     const unsub = api.subscribeSnapshot(
       q,
       (snap) => {
-        const qs = snap as any;
-        const next: Banner[] = (qs.docs ?? []).map((d: any) => d.data()) as Banner[];
-        setItems(next);
+        setItems(docsFromSnapshot<Banner>(snap));
         setLoading(false);
       },
       () => setLoading(false),

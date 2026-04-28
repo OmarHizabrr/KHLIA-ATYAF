@@ -6,6 +6,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import FirestoreApi from "@/services/firestoreApi";
 import { BannerCarousel } from "@/components/BannerCarousel";
 import { HomeSections } from "@/components/HomeSections";
+import { docsFromSnapshot } from "@/services/snapshot";
 import type { Banner } from "@/types/store";
 
 export default function Home() {
@@ -16,8 +17,7 @@ export default function Home() {
     const unsub = api.subscribeSnapshot(
       api.bannersQuery(),
       (snap) => {
-        const qs = snap as any;
-        setBanners(((qs.docs ?? []) as any[]).map((d) => d.data()) as Banner[]);
+        setBanners(docsFromSnapshot<Banner>(snap));
       },
       () => undefined,
     );

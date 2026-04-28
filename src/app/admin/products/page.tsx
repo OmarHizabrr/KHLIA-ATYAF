@@ -7,6 +7,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import FirestoreApi from "@/services/firestoreApi";
 import type { Product } from "@/types/store";
 import { deleteProduct, newProductDraft, upsertProduct } from "@/services/productsApi";
+import { docsFromSnapshot } from "@/services/snapshot";
 import { uploadPublicImage } from "@/services/storageApi";
 
 const api = FirestoreApi.Api;
@@ -26,9 +27,7 @@ export default function AdminProductsPage() {
     const unsub = api.subscribeSnapshot(
       q,
       (snap) => {
-        const qs = snap as any;
-        const next: Product[] = (qs.docs ?? []).map((d: any) => d.data()) as Product[];
-        setItems(next);
+        setItems(docsFromSnapshot<Product>(snap));
         setLoading(false);
       },
       () => setLoading(false),

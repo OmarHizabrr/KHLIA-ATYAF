@@ -7,6 +7,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import FirestoreApi from "@/services/firestoreApi";
 import type { Category } from "@/types/store";
 import { deleteCategory, newCategoryDraft, upsertCategory } from "@/services/categoriesApi";
+import { docsFromSnapshot } from "@/services/snapshot";
 import { uploadPublicImage } from "@/services/storageApi";
 
 const api = FirestoreApi.Api;
@@ -26,9 +27,7 @@ export default function AdminCategoriesPage() {
     const unsub = api.subscribeSnapshot(
       q,
       (snap) => {
-        const qs = snap as any;
-        const next: Category[] = (qs.docs ?? []).map((d: any) => d.data()) as Category[];
-        setItems(next);
+        setItems(docsFromSnapshot<Category>(snap));
         setLoading(false);
       },
       () => setLoading(false),

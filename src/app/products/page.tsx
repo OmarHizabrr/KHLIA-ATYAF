@@ -1,11 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { SiteHeader } from "@/components/SiteHeader";
 import FirestoreApi from "@/services/firestoreApi";
 import type { Category, Product } from "@/types/store";
 import { ProductGrid } from "@/components/ProductGrid";
+import { docsFromSnapshot } from "@/services/snapshot";
 
 const api = FirestoreApi.Api;
 
@@ -21,8 +21,7 @@ export default function ProductsPage() {
     const unsubCats = api.subscribeSnapshot(
       api.categoriesQuery(),
       (snap) => {
-        const qs = snap as any;
-        setCategories(((qs.docs ?? []) as any[]).map((d) => d.data()) as Category[]);
+        setCategories(docsFromSnapshot<Category>(snap));
       },
       () => undefined,
     );
@@ -31,12 +30,10 @@ export default function ProductsPage() {
   }, []);
 
   useEffect(() => {
-    setLoading(true);
     const unsub = api.subscribeSnapshot(
       api.productsActiveQuery({ categoryId: categoryId || undefined }),
       (snap) => {
-        const qs = snap as any;
-        setProducts(((qs.docs ?? []) as any[]).map((d) => d.data()) as Product[]);
+        setProducts(docsFromSnapshot<Product>(snap));
         setLoading(false);
       },
       () => setLoading(false),

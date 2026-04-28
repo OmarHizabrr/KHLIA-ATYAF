@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { SiteHeader } from "@/components/SiteHeader";
 import FirestoreApi from "@/services/firestoreApi";
+import { docsFromSnapshot } from "@/services/snapshot";
 import type { Banner } from "@/types/store";
 
 const api = FirestoreApi.Api;
@@ -17,8 +18,7 @@ export default function OffersPage() {
     const unsub = api.subscribeSnapshot(
       api.bannersQuery(),
       (snap) => {
-        const qs = snap as any;
-        setItems(((qs.docs ?? []) as any[]).map((d) => d.data()) as Banner[]);
+        setItems(docsFromSnapshot<Banner>(snap));
         setLoading(false);
       },
       () => setLoading(false),

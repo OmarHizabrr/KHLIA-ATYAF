@@ -6,6 +6,8 @@ import { useEffect, useMemo, useState } from "react";
 import FirestoreApi from "@/services/firestoreApi";
 import type { Banner, Category, Order, Product } from "@/types/store";
 import { ProductGrid } from "@/components/ProductGrid";
+import { docsFromSnapshot } from "@/services/snapshot";
+import type { CollectionReference } from "firebase/firestore";
 
 const api = FirestoreApi.Api;
 
@@ -18,27 +20,22 @@ export function HomeSections() {
 
   useEffect(() => {
     const unsubCats = api.subscribeSnapshot(api.categoriesQuery(), (snap) => {
-      const qs = snap as any;
-      setCategories(((qs.docs ?? []) as any[]).map((d) => d.data()) as Category[]);
+      setCategories(docsFromSnapshot<Category>(snap));
     });
     const unsubFeat = api.subscribeSnapshot(api.featuredProductsQuery(), (snap) => {
-      const qs = snap as any;
-      setFeatured(((qs.docs ?? []) as any[]).map((d) => d.data()) as Product[]);
+      setFeatured(docsFromSnapshot<Product>(snap));
     });
     const unsubLatest = api.subscribeSnapshot(api.latestProductsQuery(), (snap) => {
-      const qs = snap as any;
-      setLatest(((qs.docs ?? []) as any[]).map((d) => d.data()) as Product[]);
+      setLatest(docsFromSnapshot<Product>(snap));
     });
     const unsubOrders = api.subscribeSnapshot(
-      api.buildQuery(api.getOrdersCollection() as any, []),
+      api.buildQuery(api.getOrdersCollection() as CollectionReference<Order>, []),
       (snap) => {
-        const qs = snap as any;
-        setOrders(((qs.docs ?? []) as any[]).map((d) => d.data()) as Order[]);
+        setOrders(docsFromSnapshot<Order>(snap));
       },
     );
     const unsubBanners = api.subscribeSnapshot(api.bannersQuery(), (snap) => {
-      const qs = snap as any;
-      setBanners(((qs.docs ?? []) as any[]).map((d) => d.data()) as Banner[]);
+      setBanners(docsFromSnapshot<Banner>(snap));
     });
 
     return () => {
