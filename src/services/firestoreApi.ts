@@ -21,7 +21,7 @@ import {
   type DocumentData,
 } from "firebase/firestore";
 import { app } from "@/firebase";
-import type { Banner, Category, Product } from "@/types/store";
+import type { Banner, Category, Currency, Product } from "@/types/store";
 
 const db = getFirestore(app);
 
@@ -131,6 +131,13 @@ class FirestoreApi {
 
   getSettingsDoc(docId = "global") {
     return this.getDocument("settings", docId);
+  }
+
+  getCurrenciesCollection() {
+    return this.getCollection<Currency>("currencies");
+  }
+  getCurrencyDoc(currencyId: string) {
+    return this.getDocument<Currency>("currencies", currencyId);
   }
 
   // ==============================
@@ -261,6 +268,11 @@ class FirestoreApi {
   bannersQuery() {
     const constraints: QueryConstraint[] = [orderBy("title", "asc"), limit(200)];
     return this.buildQuery(this.getBannersCollection(), constraints);
+  }
+
+  currenciesQuery() {
+    const constraints: QueryConstraint[] = [orderBy("isDefault", "desc"), orderBy("code", "asc"), limit(200)];
+    return this.buildQuery(this.getCurrenciesCollection(), constraints);
   }
 }
 

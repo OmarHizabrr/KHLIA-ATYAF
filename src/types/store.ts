@@ -56,3 +56,13 @@ export type Banner = {
   link?: string;
 };
 
+export type Currency = {
+  id: string;
+  code: string;
+  name: string;
+  symbol: string;
+  rate: number;
+  isDefault: boolean;
+  isActive: boolean;
+};
+

@@ -9,6 +9,9 @@ import type { Product } from "@/types/store";
 import { deleteProduct, newProductDraft, upsertProduct } from "@/services/productsApi";
 import { docsFromSnapshot } from "@/services/snapshot";
 import { uploadPublicImage } from "@/services/storageApi";
+import { AppModal } from "@/components/ui/AppModal";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { InlineAlert, LoadingState } from "@/components/ui/Feedback";
 
 const api = FirestoreApi.Api;
 
@@ -21,6 +24,7 @@ export default function AdminProductsPage() {
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
     const q = api.productsAdminQuery();
@@ -71,12 +75,13 @@ export default function AdminProductsPage() {
     }
   }
 
-  async function onDelete(id: string) {
-    if (!confirm("حذف المنتج؟")) return;
+  async function confirmDelete() {
+    if (!deleteId) return;
     try {
-      await deleteProduct(id);
+      await deleteProduct(deleteId);
+      setDeleteId(null);
     } catch {
-      alert("تعذر الحذف.");
+      setMessage("تعذر الحذف.");
     }
   }
 
@@ -110,8 +115,10 @@ export default function AdminProductsPage() {
             </button>
           </div>
 
+          {message ? <div className="mt-4"><InlineAlert text={message} /></div> : null}
+
           {loading ? (
-            <div className="mt-6 text-sm text-zinc-500">جاري التحميل…</div>
+            <div className="mt-6"><LoadingState /></div>
           ) : items.length === 0 ? (
             <div className="mt-6 text-sm text-zinc-500">لا توجد بيانات بعد.</div>
           ) : (
@@ -149,7 +156,7 @@ export default function AdminProductsPage() {
                       تعديل
                     </button>
                     <button
-                      onClick={() => onDelete(p.id)}
+                      onClick={() => setDeleteId(p.id)}
                       className="rounded-full border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-100"
                     >
                       حذف
@@ -161,22 +168,23 @@ export default function AdminProductsPage() {
           )}
         </section>
 
-        {open ? (
-          <div className="fixed inset-0 z-50 grid place-items-center bg-black/30 p-4">
-            <div className="w-full max-w-xl rounded-3xl border border-zinc-200 bg-white p-6">
-              <div className="mb-4 flex items-center justify-between gap-3">
-                <div className="text-base font-bold text-zinc-900">
-                  {draft.id ? "تعديل منتج" : "إضافة منتج"}
-                </div>
-                <button
-                  onClick={() => setOpen(false)}
-                  className="rounded-full border border-zinc-200 px-4 py-2 text-sm font-semibold text-zinc-800 hover:bg-zinc-50"
-                >
-                  إغلاق
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 gap-4">
+        <AppModal
+          open={open}
+          title={draft.id ? "تعديل منتج" : "إضافة منتج"}
+          onClose={() => setOpen(false)}
+          footer={
+            <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+              <button
+                onClick={onSave}
+                disabled={busy}
+                className="rounded-full bg-zinc-900 px-6 py-3 text-sm font-semibold text-white hover:bg-zinc-800 disabled:opacity-60"
+              >
+                {busy ? "جاري الحفظ…" : "حفظ"}
+              </button>
+            </div>
+          }
+        >
+          <div className="grid grid-cols-1 gap-4">
                 <label className="grid gap-2 text-sm font-semibold text-zinc-800">
                   اسم المنتج
                   <input
@@ -241,26 +249,17 @@ export default function AdminProductsPage() {
                     onChange={(e) => setFile(e.target.files?.[0] ?? null)}
                   />
                 </label>
-              </div>
-
-              {message ? (
-                <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                  {message}
-                </div>
-              ) : null}
-
-              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
-                <button
-                  onClick={onSave}
-                  disabled={busy}
-                  className="rounded-full bg-zinc-900 px-6 py-3 text-sm font-semibold text-white hover:bg-zinc-800 disabled:opacity-60"
-                >
-                  {busy ? "جاري الحفظ…" : "حفظ"}
-                </button>
-              </div>
-            </div>
           </div>
-        ) : null}
+        </AppModal>
+
+        <ConfirmDialog
+          open={Boolean(deleteId)}
+          title="تأكيد الحذف"
+          description="هل أنت متأكد من حذف المنتج؟"
+          confirmText="حذف"
+          onConfirm={confirmDelete}
+          onCancel={() => setDeleteId(null)}
+        />
       </main>
     </div>
   );

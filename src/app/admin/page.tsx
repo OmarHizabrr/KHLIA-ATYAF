@@ -3,6 +3,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 
 const cards = [
   { href: "/admin/access-requests", title: "طلبات الدخول", desc: "مراجعة طلبات دخول لوحة الإدارة" },
+  { href: "/admin/currencies", title: "العملات", desc: "إدارة جدول العملات وسعر التحويل" },
   { href: "/admin/products", title: "المنتجات", desc: "إضافة/تعديل/حذف المنتجات ورفع الصور" },
   { href: "/admin/categories", title: "الأقسام", desc: "إدارة الأقسام وترتيبها" },
   { href: "/admin/orders", title: "الطلبات", desc: "عرض الطلبات وتحديث الحالة" },
