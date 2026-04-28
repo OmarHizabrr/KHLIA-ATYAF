@@ -5,7 +5,13 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { User } from "firebase/auth";
 import { Brand } from "@/components/Brand";
-import { adminSignOut, isAdminUser, subscribeAuth } from "@/services/adminAuth";
+import {
+  adminSignOut,
+  isAdminApproved,
+  subscribeAccessStatus,
+  subscribeAuth,
+  type AdminAccessStatus,
+} from "@/services/adminAuth";
 
 const nav = [
   { href: "/", label: "الرئيسية" },
@@ -19,17 +25,31 @@ export function SiteHeader() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [ready, setReady] = useState(false);
+  const [status, setStatus] = useState<AdminAccessStatus | null | undefined>(undefined);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     const unsub = subscribeAuth((u) => {
       setUser(u);
+      setStatus(u ? undefined : null);
       setReady(true);
     });
     return () => unsub();
   }, []);
 
-  const isAdmin = useMemo(() => isAdminUser(user), [user]);
+  useEffect(() => {
+    if (!user?.uid) return;
+    const unsub = subscribeAccessStatus(user.uid, (s) => {
+      setStatus(s);
+    });
+    return () => unsub();
+  }, [user?.uid]);
+
+  const statusReady = !user || status !== undefined;
+  const isAdmin = useMemo(
+    () => isAdminApproved(status === undefined ? null : status),
+    [status],
+  );
   const adminLabel = useMemo(() => {
     if (!user) return "حساب الإدارة";
     if (user.displayName?.trim()) return user.displayName.trim();
@@ -67,7 +87,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
-          {ready && isAdmin ? (
+          {ready && statusReady && isAdmin ? (
             <>
               <span className="hidden rounded-full bg-zinc-100 px-3 py-2 text-xs font-semibold text-zinc-700 md:inline-flex">
                 {adminLabel}

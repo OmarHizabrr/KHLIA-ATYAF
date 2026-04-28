@@ -30,7 +30,7 @@ export default function AdminLoginPage() {
       <main className="mx-auto w-full max-w-md px-4 py-10">
         <h1 className="text-2xl font-bold text-zinc-900">تسجيل دخول الإدارة</h1>
         <p className="mt-2 text-sm leading-7 text-zinc-600">
-          الدخول مخصص لصاحب متجر خلية أطياف فقط عبر Google.
+          سجّل عبر Google. إذا كان الدخول لأول مرة، سيظهر طلبك للإدارة للموافقة.
         </p>
 
         <div className="mt-6 rounded-3xl border border-zinc-200 bg-white p-6">
