@@ -21,6 +21,7 @@ import {
   type DocumentData,
 } from "firebase/firestore";
 import { app } from "@/firebase";
+import type { Product } from "@/types/store";
 
 const db = getFirestore(app);
 
@@ -221,6 +222,14 @@ class FirestoreApi {
     constraints.push(orderBy("createdAt", newestFirst ? "desc" : "asc"));
     constraints.push(limit(60));
     return this.buildQuery(this.getProductsCollection(), constraints);
+  }
+
+  productsAdminQuery({ newestFirst = true }: { newestFirst?: boolean } = {}) {
+    const constraints: QueryConstraint[] = [
+      orderBy("createdAt", newestFirst ? "desc" : "asc"),
+      limit(200),
+    ];
+    return this.buildQuery(this.getProductsCollection() as unknown as CollectionReference<Product>, constraints);
   }
 }
 

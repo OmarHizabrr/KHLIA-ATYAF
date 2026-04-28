@@ -1,7 +1,53 @@
+"use client";
+
 import Link from "next/link";
+import { useMemo, useState } from "react";
 import { SiteHeader } from "@/components/SiteHeader";
+import { clearCart, getCartItems } from "@/services/cartStore";
+import type { OrderItem } from "@/types/store";
+import { createOrder } from "@/services/ordersApi";
 
 export default function CheckoutPage() {
+  const [items] = useState<OrderItem[]>(() => getCartItems());
+  const [customerName, setCustomerName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+
+  const total = useMemo(() => {
+    return items.reduce((sum, it) => sum + (it.price || 0) * (it.qty || 0), 0);
+  }, [items]);
+
+  async function onSubmit() {
+    setMessage(null);
+    if (!customerName || !phone || !address) {
+      setMessage("يرجى إدخال الاسم ورقم الجوال والعنوان.");
+      return;
+    }
+    if (items.length === 0) {
+      setMessage("السلة فارغة.");
+      return;
+    }
+    setBusy(true);
+    try {
+      const id = await createOrder({
+        customerName,
+        phone,
+        address,
+        items,
+        total,
+        status: "جديد",
+      });
+      clearCart();
+      setMessage(`تم استلام طلبك بنجاح. رقم الطلب: ${id}`);
+    } catch {
+      setMessage("تعذر إنشاء الطلب. تأكد من قواعد Firestore.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
     <div className="min-h-full bg-zinc-50">
       <SiteHeader />
@@ -9,15 +55,24 @@ export default function CheckoutPage() {
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-zinc-900">إتمام الطلب</h1>
           <p className="mt-2 text-sm leading-7 text-zinc-600">
-            أدخل بياناتك وسيتم إنشاء الطلب في Firestore.
+            سيتم إنشاء الطلب في قاعدة البيانات بعد التأكيد.
           </p>
         </div>
 
         <section className="rounded-3xl border border-zinc-200 bg-white p-6">
+          <div className="mb-4 flex items-center justify-between gap-3 rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm">
+            <span className="font-semibold text-zinc-800">
+              عدد العناصر: {items.length}
+            </span>
+            <span className="font-bold text-zinc-900">الإجمالي: {total}</span>
+          </div>
+
           <div className="grid grid-cols-1 gap-4">
             <label className="grid gap-2 text-sm font-semibold text-zinc-800">
               الاسم
               <input
+                value={customerName}
+                onChange={(e) => setCustomerName(e.target.value)}
                 className="h-12 rounded-2xl border border-zinc-200 px-4 outline-none focus:border-zinc-400"
                 placeholder="اسم العميل"
               />
@@ -25,18 +80,29 @@ export default function CheckoutPage() {
             <label className="grid gap-2 text-sm font-semibold text-zinc-800">
               رقم الجوال
               <input
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
                 className="h-12 rounded-2xl border border-zinc-200 px-4 outline-none focus:border-zinc-400"
                 placeholder="05xxxxxxxx"
+                inputMode="tel"
               />
             </label>
             <label className="grid gap-2 text-sm font-semibold text-zinc-800">
               العنوان
               <textarea
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
                 className="min-h-24 rounded-2xl border border-zinc-200 px-4 py-3 outline-none focus:border-zinc-400"
                 placeholder="الحي، الشارع، رقم المنزل..."
               />
             </label>
           </div>
+
+          {message ? (
+            <div className="mt-4 rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-700">
+              {message}
+            </div>
+          ) : null}
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
             <Link
@@ -45,8 +111,12 @@ export default function CheckoutPage() {
             >
               رجوع للسلة
             </Link>
-            <button className="rounded-full bg-zinc-900 px-6 py-3 text-sm font-semibold text-white hover:bg-zinc-800">
-              تأكيد الطلب
+            <button
+              onClick={onSubmit}
+              disabled={busy}
+              className="rounded-full bg-zinc-900 px-6 py-3 text-sm font-semibold text-white hover:bg-zinc-800 disabled:opacity-60"
+            >
+              {busy ? "جاري التأكيد…" : "تأكيد الطلب"}
             </button>
           </div>
         </section>
