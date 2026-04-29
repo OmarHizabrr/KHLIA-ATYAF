@@ -1,6 +1,7 @@
 "use client";
 
 import { AppModal } from "@/components/ui/AppModal";
+import { AppButton } from "@/components/ui/AppButton";
 
 export function ConfirmDialog({
   open,
@@ -28,19 +29,21 @@ export function ConfirmDialog({
       onClose={onCancel}
       footer={
         <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
-          <button
+          <AppButton
             onClick={onCancel}
-            className="rounded-full border border-zinc-200 px-5 py-2.5 text-sm font-semibold text-zinc-700 hover:bg-zinc-50"
+            variant="secondary"
+            size="sm"
           >
             {cancelText}
-          </button>
-          <button
+          </AppButton>
+          <AppButton
             onClick={onConfirm}
-            disabled={busy}
-            className="rounded-full border border-red-200 bg-red-50 px-5 py-2.5 text-sm font-semibold text-red-700 hover:bg-red-100 disabled:opacity-60"
+            loading={busy}
+            variant="danger"
+            size="sm"
           >
-            {busy ? "..." : confirmText}
-          </button>
+            {confirmText}
+          </AppButton>
         </div>
       }
     >

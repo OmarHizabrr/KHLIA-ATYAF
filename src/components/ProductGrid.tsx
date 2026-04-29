@@ -6,6 +6,7 @@ import Link from "next/link";
 import { addToCart } from "@/services/cartStore";
 import type { Product } from "@/types/store";
 import { FullImageModal } from "@/components/ui/FullImageModal";
+import { AppButton } from "@/components/ui/AppButton";
 
 export function ProductGrid({ products }: { products: Product[] }) {
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
@@ -75,7 +76,7 @@ export function ProductGrid({ products }: { products: Product[] }) {
             >
               التفاصيل
             </Link>
-            <button
+            <AppButton
               onClick={() =>
                 addToCart({
                   productId: p.id,
@@ -87,10 +88,12 @@ export function ProductGrid({ products }: { products: Product[] }) {
                   image: p.images?.[0] || "",
                 })
               }
-              className="flex-1 rounded-full bg-zinc-900 px-4 py-2 text-center text-sm font-semibold text-white hover:bg-zinc-800"
+              className="flex-1"
+              variant="primary"
+              size="sm"
             >
               أضف للسلة
-            </button>
+            </AppButton>
           </div>
         </div>
       ))}

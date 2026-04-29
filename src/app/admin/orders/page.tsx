@@ -9,6 +9,7 @@ import { updateOrderStatus } from "@/services/ordersApi";
 import { docsFromSnapshot } from "@/services/snapshot";
 import { groupTotalsByCurrency, totalInDefaultCurrency } from "@/services/currencyTotals";
 import type { CollectionReference } from "firebase/firestore";
+import { AppButton } from "@/components/ui/AppButton";
 
 const api = FirestoreApi.Api;
 const statuses: OrderStatus[] = ["جديد", "قيد التنفيذ", "تم التجهيز", "تم التسليم"];
@@ -73,28 +74,30 @@ export default function AdminOrdersPage() {
 
         <section className="rounded-3xl border border-zinc-200 bg-white p-6">
           <div className="flex flex-wrap gap-2">
-            <button
+            <AppButton
               onClick={() => setFilter("الكل")}
-              className={`rounded-full border px-4 py-2 text-sm font-semibold ${
+              size="sm"
+              className={`${
                 filter === "الكل"
-                  ? "border-zinc-900 bg-zinc-900 text-white"
-                  : "border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50"
+                  ? "bg-zinc-900 text-white hover:bg-zinc-800"
+                  : "border border-zinc-200 text-zinc-700 hover:bg-zinc-50"
               }`}
             >
               الكل
-            </button>
+            </AppButton>
             {statuses.map((s) => (
-              <button
+              <AppButton
                 key={s}
                 onClick={() => setFilter(s)}
-                className={`rounded-full border px-4 py-2 text-sm font-semibold ${
+                size="sm"
+                className={`${
                   filter === s
-                    ? "border-zinc-900 bg-zinc-900 text-white"
-                    : "border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50"
+                    ? "bg-zinc-900 text-white hover:bg-zinc-800"
+                    : "border border-zinc-200 text-zinc-700 hover:bg-zinc-50"
                 }`}
               >
                 {s}
-              </button>
+              </AppButton>
             ))}
           </div>
 

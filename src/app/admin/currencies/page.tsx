@@ -10,6 +10,7 @@ import { docsFromSnapshot } from "@/services/snapshot";
 import { AppModal } from "@/components/ui/AppModal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { InlineAlert, LoadingState } from "@/components/ui/Feedback";
+import { AppButton } from "@/components/ui/AppButton";
 
 const api = FirestoreApi.Api;
 
@@ -93,12 +94,12 @@ export default function AdminCurrenciesPage() {
         <section className="rounded-3xl border border-zinc-200 bg-white p-6">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="text-sm font-bold text-zinc-900">العملات</div>
-            <button
+            <AppButton
               onClick={startCreate}
-              className="rounded-full bg-zinc-900 px-6 py-3 text-sm font-semibold text-white hover:bg-zinc-800"
+              variant="primary"
             >
               إضافة عملة
-            </button>
+            </AppButton>
           </div>
 
           {message ? <div className="mt-4"><InlineAlert text={message} /></div> : null}
@@ -132,18 +133,20 @@ export default function AdminCurrenciesPage() {
                       <td className="px-3 py-3">{c.isActive ? "نشطة" : "مخفية"}</td>
                       <td className="px-3 py-3">
                         <div className="flex flex-wrap gap-2">
-                          <button
+                          <AppButton
                             onClick={() => startEdit(c)}
-                            className="rounded-full border border-zinc-200 bg-white px-4 py-2 text-xs font-semibold text-zinc-800 hover:bg-zinc-100"
+                            variant="secondary"
+                            size="sm"
                           >
                             تعديل
-                          </button>
-                          <button
+                          </AppButton>
+                          <AppButton
                             onClick={() => setDeleteId(c.id)}
-                            className="rounded-full border border-red-200 bg-red-50 px-4 py-2 text-xs font-semibold text-red-700 hover:bg-red-100"
+                            variant="danger"
+                            size="sm"
                           >
                             حذف
-                          </button>
+                          </AppButton>
                         </div>
                       </td>
                     </tr>
@@ -160,13 +163,13 @@ export default function AdminCurrenciesPage() {
           onClose={() => setOpen(false)}
           footer={
             <div className="flex justify-end">
-              <button
+              <AppButton
                 onClick={onSave}
-                disabled={busy}
-                className="rounded-full bg-zinc-900 px-6 py-3 text-sm font-semibold text-white hover:bg-zinc-800 disabled:opacity-60"
+                loading={busy}
+                variant="primary"
               >
-                {busy ? "جاري الحفظ…" : "حفظ"}
-              </button>
+                حفظ
+              </AppButton>
             </div>
           }
         >

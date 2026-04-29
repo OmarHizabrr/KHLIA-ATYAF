@@ -9,6 +9,7 @@ import { docsFromSnapshot } from "@/services/snapshot";
 import type { Currency, OrderItem } from "@/types/store";
 import { createOrder } from "@/services/ordersApi";
 import { groupTotalsByCurrency, totalInDefaultCurrency } from "@/services/currencyTotals";
+import { AppButton } from "@/components/ui/AppButton";
 
 const api = FirestoreApi.Api;
 
@@ -137,13 +138,13 @@ export default function CheckoutPage() {
             >
               رجوع للسلة
             </Link>
-            <button
+            <AppButton
               onClick={onSubmit}
-              disabled={busy}
-              className="rounded-full bg-zinc-900 px-6 py-3 text-sm font-semibold text-white hover:bg-zinc-800 disabled:opacity-60"
+              loading={busy}
+              variant="primary"
             >
-              {busy ? "جاري التأكيد…" : "تأكيد الطلب"}
-            </button>
+              تأكيد الطلب
+            </AppButton>
           </div>
         </section>
       </main>

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { SiteHeader } from "@/components/SiteHeader";
 import { adminSignInWithGoogle } from "@/services/adminAuth";
+import { AppButton } from "@/components/ui/AppButton";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -40,13 +41,14 @@ export default function AdminLoginPage() {
             </div>
           ) : null}
 
-          <button
+          <AppButton
             onClick={onGoogle}
-            disabled={busy}
-            className="w-full rounded-full bg-zinc-900 px-6 py-3 text-sm font-semibold text-white hover:bg-zinc-800 disabled:opacity-60"
+            loading={busy}
+            variant="primary"
+            className="w-full"
           >
-            {busy ? "جاري تسجيل الدخول…" : "تسجيل الدخول عبر Google"}
-          </button>
+            تسجيل الدخول عبر Google
+          </AppButton>
 
           <p className="mt-3 text-center text-xs text-zinc-500">
             سيتم فتح نافذة Google مباشرة عند الضغط.

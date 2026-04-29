@@ -14,6 +14,7 @@ import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { InlineAlert, LoadingState } from "@/components/ui/Feedback";
 import { ImagePickerField } from "@/components/ui/ImagePickerField";
 import { FullImageModal } from "@/components/ui/FullImageModal";
+import { AppButton } from "@/components/ui/AppButton";
 
 const api = FirestoreApi.Api;
 
@@ -132,12 +133,12 @@ export default function AdminProductsPage() {
         <section className="rounded-3xl border border-zinc-200 bg-white p-6">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="text-sm font-bold text-zinc-900">قائمة المنتجات</div>
-            <button
+            <AppButton
               onClick={startCreate}
-              className="rounded-full bg-zinc-900 px-6 py-3 text-sm font-semibold text-white hover:bg-zinc-800"
+              variant="primary"
             >
               إضافة منتج
-            </button>
+            </AppButton>
           </div>
 
           {message ? <div className="mt-4"><InlineAlert text={message} /></div> : null}
@@ -201,18 +202,20 @@ export default function AdminProductsPage() {
                   </div>
 
                   <div className="flex flex-wrap gap-2">
-                    <button
+                    <AppButton
                       onClick={() => startEdit(p)}
-                      className="rounded-full border border-zinc-200 px-4 py-2 text-sm font-semibold text-zinc-800 hover:bg-zinc-50"
+                      variant="secondary"
+                      size="sm"
                     >
                       تعديل
-                    </button>
-                    <button
+                    </AppButton>
+                    <AppButton
                       onClick={() => setDeleteId(p.id)}
-                      className="rounded-full border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-100"
+                      variant="danger"
+                      size="sm"
                     >
                       حذف
-                    </button>
+                    </AppButton>
                   </div>
                 </div>
               ))}
@@ -226,13 +229,13 @@ export default function AdminProductsPage() {
           onClose={() => setOpen(false)}
           footer={
             <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
-              <button
+              <AppButton
                 onClick={onSave}
-                disabled={busy}
-                className="rounded-full bg-zinc-900 px-6 py-3 text-sm font-semibold text-white hover:bg-zinc-800 disabled:opacity-60"
+                loading={busy}
+                variant="primary"
               >
-                {busy ? "جاري الحفظ…" : "حفظ"}
-              </button>
+                حفظ
+              </AppButton>
             </div>
           }
         >

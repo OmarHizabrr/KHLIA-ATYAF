@@ -5,6 +5,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { User } from "firebase/auth";
 import { Brand } from "@/components/Brand";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { AppButton } from "@/components/ui/AppButton";
 import {
   adminSignOut,
   isAdminApproved,
@@ -87,6 +89,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <ThemeToggle />
           {ready && statusReady && isAdmin ? (
             <>
               <span className="hidden rounded-full bg-zinc-100 px-3 py-2 text-xs font-semibold text-zinc-700 md:inline-flex">
@@ -98,13 +101,14 @@ export function SiteHeader() {
               >
                 لوحة الإدارة
               </Link>
-              <button
+              <AppButton
                 onClick={onLogout}
-                disabled={busy}
-                className="rounded-full border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-100 disabled:opacity-60"
+                loading={busy}
+                variant="danger"
+                size="sm"
               >
-                {busy ? "..." : "خروج"}
-              </button>
+                خروج
+              </AppButton>
             </>
           ) : (
             <Link

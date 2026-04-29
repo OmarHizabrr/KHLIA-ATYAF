@@ -8,6 +8,7 @@ import FirestoreApi from "@/services/firestoreApi";
 import { docsFromSnapshot } from "@/services/snapshot";
 import type { Currency, OrderItem } from "@/types/store";
 import { groupTotalsByCurrency, totalInDefaultCurrency } from "@/services/currencyTotals";
+import { AppButton } from "@/components/ui/AppButton";
 
 const api = FirestoreApi.Api;
 
@@ -76,12 +77,13 @@ export default function CartPage() {
                         onChange={(e) => onQty(it.productId, Number(e.target.value || 1))}
                         className="h-10 w-24 rounded-2xl border border-zinc-200 px-3 text-sm font-semibold text-zinc-800"
                       />
-                      <button
+                      <AppButton
                         onClick={() => onRemove(it.productId)}
-                        className="rounded-full border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-100"
+                        variant="danger"
+                        size="sm"
                       >
                         حذف
-                      </button>
+                      </AppButton>
                     </div>
                   </div>
                 ))}
@@ -105,16 +107,10 @@ export default function CartPage() {
           )}
 
           <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
-            <Link
-              href="/products"
-              className="rounded-full border border-zinc-200 px-6 py-3 text-center text-sm font-semibold text-zinc-800 hover:bg-zinc-50"
-            >
+            <Link href="/products" className="rounded-full border border-zinc-200 px-6 py-3 text-center text-sm font-semibold text-zinc-800 hover:bg-zinc-50">
               متابعة التسوق
             </Link>
-            <Link
-              href="/checkout"
-              className="rounded-full bg-zinc-900 px-6 py-3 text-center text-sm font-semibold text-white hover:bg-zinc-800"
-            >
+            <Link href="/checkout" className="rounded-full bg-zinc-900 px-6 py-3 text-center text-sm font-semibold text-white hover:bg-zinc-800">
               تنفيذ الطلب
             </Link>
           </div>

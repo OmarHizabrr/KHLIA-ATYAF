@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { SiteHeader } from "@/components/SiteHeader";
 import type { StoreSettings } from "@/types/store";
 import { getStoreSettings, saveStoreSettings } from "@/services/settingsApi";
+import { AppButton } from "@/components/ui/AppButton";
 
 export default function AdminSettingsPage() {
   const [form, setForm] = useState<StoreSettings>({
@@ -141,13 +142,13 @@ export default function AdminSettingsPage() {
               ) : null}
 
               <div className="mt-6 flex justify-end">
-                <button
+                <AppButton
                   onClick={onSave}
-                  disabled={busy}
-                  className="rounded-full bg-zinc-900 px-6 py-3 text-sm font-semibold text-white hover:bg-zinc-800 disabled:opacity-60"
+                  loading={busy}
+                  variant="primary"
                 >
-                  {busy ? "جاري الحفظ…" : "حفظ الإعدادات"}
-                </button>
+                  حفظ الإعدادات
+                </AppButton>
               </div>
             </>
           )}
