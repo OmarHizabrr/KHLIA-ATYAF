@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -10,6 +11,8 @@ import { docsFromSnapshot } from "@/services/snapshot";
 import { groupTotalsByCurrency, totalInDefaultCurrency } from "@/services/currencyTotals";
 import type { CollectionReference } from "firebase/firestore";
 import { AppButton } from "@/components/ui/AppButton";
+import { subscribeAuth } from "@/services/adminAuth";
+import type { User } from "firebase/auth";
 
 const api = FirestoreApi.Api;
 const statuses: OrderStatus[] = ["جديد", "قيد التنفيذ", "تم التجهيز", "تم التسليم"];
@@ -19,6 +22,7 @@ export default function AdminOrdersPage() {
   const [currencies, setCurrencies] = useState<Currency[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<OrderStatus | "الكل">("الكل");
+  const [adminUser, setAdminUser] = useState<User | null>(null);
 
   useEffect(() => {
     const q = api.buildQuery(api.getOrdersCollection() as CollectionReference<Order>, []);
@@ -30,6 +34,11 @@ export default function AdminOrdersPage() {
       },
       () => setLoading(false),
     );
+    return () => unsub();
+  }, []);
+
+  useEffect(() => {
+    const unsub = subscribeAuth((user) => setAdminUser(user));
     return () => unsub();
   }, []);
 
@@ -64,12 +73,24 @@ export default function AdminOrdersPage() {
               إجمالي الطلبات: <span className="font-bold text-zinc-900">{items.length}</span>
             </p>
           </div>
-          <Link
-            href="/admin"
-            className="rounded-full border border-zinc-200 px-4 py-2 text-sm font-semibold text-zinc-800 hover:bg-zinc-50"
-          >
-            رجوع
-          </Link>
+          <div className="flex items-center gap-2">
+            {adminUser?.photoURL ? (
+              <div className="flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-2 py-1 dark:bg-zinc-800">
+                <div className="relative h-8 w-8 overflow-hidden rounded-full">
+                  <Image src={adminUser.photoURL} alt={adminUser.displayName || "admin"} fill className="object-cover" />
+                </div>
+                <span className="hidden text-xs font-semibold text-zinc-700 dark:text-zinc-200 sm:inline">
+                  {adminUser.displayName || adminUser.email || "Admin"}
+                </span>
+              </div>
+            ) : null}
+            <Link
+              href="/admin"
+              className="rounded-full border border-zinc-200 px-4 py-2 text-sm font-semibold text-zinc-800 hover:bg-zinc-50"
+            >
+              رجوع
+            </Link>
+          </div>
         </div>
 
         <section className="rounded-3xl border border-zinc-200 bg-white p-6">

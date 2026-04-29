@@ -7,12 +7,15 @@ import { SiteHeader } from "@/components/SiteHeader";
 import FirestoreApi from "@/services/firestoreApi";
 import { docsFromSnapshot } from "@/services/snapshot";
 import type { Banner } from "@/types/store";
+import { FullImageModal } from "@/components/ui/FullImageModal";
 
 const api = FirestoreApi.Api;
 
 export default function OffersPage() {
   const [items, setItems] = useState<Banner[]>([]);
   const [loading, setLoading] = useState(true);
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
+  const [lightboxAlt, setLightboxAlt] = useState<string>("");
 
   useEffect(() => {
     const unsub = api.subscribeSnapshot(
@@ -58,6 +61,23 @@ export default function OffersPage() {
                         className="object-cover"
                       />
                     ) : null}
+                    {b.image ? (
+                      <button
+                        type="button"
+                        aria-label="عرض الصورة"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setLightboxSrc(b.image || null);
+                          setLightboxAlt(b.title);
+                        }}
+                        className="absolute right-2 top-2 z-10 rounded-full p-2 text-zinc-600 opacity-50 hover:opacity-90 hover:bg-black/10"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                          <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+                          <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke="currentColor" strokeWidth="2" />
+                        </svg>
+                      </button>
+                    ) : null}
                   </div>
                   <div className="p-6">
                     <div className="text-base font-bold text-zinc-900">
@@ -69,6 +89,12 @@ export default function OffersPage() {
             })}
           </div>
         )}
+        <FullImageModal
+          open={Boolean(lightboxSrc)}
+          src={lightboxSrc || ""}
+          alt={lightboxAlt}
+          onClose={() => setLightboxSrc(null)}
+        />
       </main>
     </div>
   );

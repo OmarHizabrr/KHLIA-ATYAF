@@ -8,6 +8,7 @@ import type { Banner, Category, Order, Product } from "@/types/store";
 import { ProductGrid } from "@/components/ProductGrid";
 import { docsFromSnapshot } from "@/services/snapshot";
 import type { CollectionReference } from "firebase/firestore";
+import { FullImageModal } from "@/components/ui/FullImageModal";
 
 const api = FirestoreApi.Api;
 
@@ -17,6 +18,8 @@ export function HomeSections() {
   const [latest, setLatest] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [banners, setBanners] = useState<Banner[]>([]);
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
+  const [lightboxAlt, setLightboxAlt] = useState<string>("");
 
   useEffect(() => {
     const unsubCats = api.subscribeSnapshot(api.categoriesQuery(), (snap) => {
@@ -83,9 +86,26 @@ export function HomeSections() {
                 href={`/products?category=${encodeURIComponent(c.id)}`}
                 className="flex flex-col items-center gap-2 rounded-2xl border border-zinc-200 p-3 hover:bg-zinc-50"
               >
-                <div className="h-14 w-14 overflow-hidden rounded-2xl bg-zinc-100">
+                <div className="relative h-14 w-14 overflow-hidden rounded-2xl bg-zinc-100">
                   {c.image ? (
-                    <Image src={c.image} alt={c.name} width={56} height={56} className="h-14 w-14 object-cover" />
+                    <Image src={c.image} alt={c.name} width={56} height={56} className="h-14 w-14 object-contain" />
+                  ) : null}
+                  {c.image ? (
+                    <button
+                      type="button"
+                      aria-label="عرض الصورة"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setLightboxSrc(c.image || null);
+                        setLightboxAlt(c.name);
+                      }}
+                      className="absolute right-1 top-1 z-10 rounded-full p-1 text-zinc-600 opacity-50 hover:opacity-90 hover:bg-black/10"
+                    >
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+                        <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke="currentColor" strokeWidth="2" />
+                      </svg>
+                    </button>
                   ) : null}
                 </div>
                 <div className="text-center text-sm font-semibold text-zinc-800">{c.name}</div>
@@ -154,6 +174,23 @@ export function HomeSections() {
               >
                 <div className="relative h-40 bg-zinc-100">
                   {b.image ? <Image src={b.image} alt={b.title} fill className="object-cover" /> : null}
+                  {b.image ? (
+                    <button
+                      type="button"
+                      aria-label="عرض الصورة"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setLightboxSrc(b.image || null);
+                        setLightboxAlt(b.title);
+                      }}
+                      className="absolute right-2 top-2 z-10 rounded-full p-2 text-zinc-600 opacity-50 hover:opacity-90 hover:bg-black/10"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+                        <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke="currentColor" strokeWidth="2" />
+                      </svg>
+                    </button>
+                  ) : null}
                 </div>
                 <div className="p-4 text-sm font-bold text-zinc-900">{b.title}</div>
               </Link>
@@ -161,6 +198,13 @@ export function HomeSections() {
           </div>
         </section>
       ) : null}
+
+      <FullImageModal
+        open={Boolean(lightboxSrc)}
+        src={lightboxSrc || ""}
+        alt={lightboxAlt}
+        onClose={() => setLightboxSrc(null)}
+      />
     </div>
   );
 }

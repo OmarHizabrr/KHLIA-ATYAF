@@ -9,6 +9,7 @@ import FirestoreApi from "@/services/firestoreApi";
 import type { Product, StoreSettings } from "@/types/store";
 import { addToCart } from "@/services/cartStore";
 import { getStoreSettings } from "@/services/settingsApi";
+import { FullImageModal } from "@/components/ui/FullImageModal";
 
 const api = FirestoreApi.Api;
 
@@ -20,6 +21,7 @@ export default function ProductDetailsPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [settings, setSettings] = useState<StoreSettings | null>(null);
   const [loading, setLoading] = useState(true);
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
 
   useEffect(() => {
     getStoreSettings().then(setSettings).catch(() => setSettings(null));
@@ -85,7 +87,7 @@ export default function ProductDetailsPage() {
         ) : (
           <section className="grid grid-cols-1 gap-6 rounded-3xl border border-zinc-200 bg-white p-6 md:grid-cols-2">
             <div className="space-y-3">
-              <div className="flex h-72 items-center justify-center overflow-hidden rounded-2xl bg-zinc-100 p-2">
+              <div className="relative flex h-72 items-center justify-center overflow-hidden rounded-2xl bg-zinc-100 p-2">
                 {product.images?.[0] ? (
                   <Image
                     src={product.images[0]}
@@ -95,11 +97,24 @@ export default function ProductDetailsPage() {
                     className="h-full w-full object-contain"
                   />
                 ) : null}
+                {product.images?.[0] ? (
+                  <button
+                    type="button"
+                    aria-label="عرض الصورة"
+                    onClick={() => setLightboxSrc(product.images?.[0] || null)}
+                    className="absolute right-2 top-2 z-10 rounded-full p-2 text-zinc-600 opacity-50 hover:opacity-90 hover:bg-black/10"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+                      <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke="currentColor" strokeWidth="2" />
+                    </svg>
+                  </button>
+                ) : null}
               </div>
               {product.images?.length ? (
                 <div className="grid grid-cols-4 gap-3">
                   {product.images.slice(0, 4).map((src, i) => (
-                    <div key={src + i} className="flex h-16 overflow-hidden items-center justify-center rounded-xl bg-zinc-100 p-1">
+                    <div key={src + i} className="relative flex h-16 overflow-hidden items-center justify-center rounded-xl bg-zinc-100 p-1">
                       <Image
                         src={src}
                         alt={product.name}
@@ -107,6 +122,17 @@ export default function ProductDetailsPage() {
                         height={240}
                         className="h-full w-full object-contain"
                       />
+                      <button
+                        type="button"
+                        aria-label="عرض الصورة"
+                        onClick={() => setLightboxSrc(src)}
+                        className="absolute right-1 top-1 z-10 rounded-full p-1 text-zinc-600 opacity-50 hover:opacity-90 hover:bg-black/10"
+                      >
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                          <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+                          <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke="currentColor" strokeWidth="2" />
+                        </svg>
+                      </button>
                     </div>
                   ))}
                 </div>
@@ -154,6 +180,12 @@ export default function ProductDetailsPage() {
             </div>
           </section>
         )}
+        <FullImageModal
+          open={Boolean(lightboxSrc)}
+          src={lightboxSrc || ""}
+          alt={product?.name || "image"}
+          onClose={() => setLightboxSrc(null)}
+        />
       </main>
     </div>
   );

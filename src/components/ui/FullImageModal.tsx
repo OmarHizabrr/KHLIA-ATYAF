@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect } from "react";
+import { AppButton } from "@/components/ui/AppButton";
 
 export function FullImageModal({
   open,
@@ -43,6 +44,18 @@ export function FullImageModal({
           e.stopPropagation();
         }}
       >
+        <div className="absolute left-4 top-4 z-10 flex flex-wrap items-center gap-2">
+          <a href={src} target="_blank" rel="noopener noreferrer" download>
+            <AppButton type="button" variant="secondary" size="sm" className="bg-black/30 text-white border-white/30 hover:bg-black/50">
+              تحميل
+            </AppButton>
+          </a>
+          <a href={src} target="_blank" rel="noopener noreferrer">
+            <AppButton type="button" variant="ghost" size="sm" className="bg-black/30 text-white hover:bg-black/50">
+              فتح الأصل
+            </AppButton>
+          </a>
+        </div>
         <button
           type="button"
           onClick={onClose}
