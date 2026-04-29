@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { SiteHeader } from "@/components/SiteHeader";
 import FirestoreApi from "@/services/firestoreApi";
-import type { Currency, Product } from "@/types/store";
+import type { Category, Currency, Product } from "@/types/store";
 import { deleteProduct, newProductDraft, upsertProduct } from "@/services/productsApi";
 import { docsFromSnapshot } from "@/services/snapshot";
 import { uploadPublicImage } from "@/services/storageApi";
@@ -20,6 +20,7 @@ const api = FirestoreApi.Api;
 
 export default function AdminProductsPage() {
   const [items, setItems] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [currencies, setCurrencies] = useState<Currency[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -32,6 +33,12 @@ export default function AdminProductsPage() {
 
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
   const [lightboxAlt, setLightboxAlt] = useState<string>("");
+
+  function getErrorText(error: unknown) {
+    if (error instanceof Error) return error.message;
+    if (typeof error === "string") return error;
+    return "خطأ غير معروف";
+  }
 
   useEffect(() => {
     const q = api.productsAdminQuery();
@@ -47,6 +54,13 @@ export default function AdminProductsPage() {
   }, []);
 
   useEffect(() => {
+    const unsub = api.subscribeSnapshot(api.categoriesQuery(), (snap) => {
+      setCategories(docsFromSnapshot<Category>(snap));
+    });
+    return () => unsub();
+  }, []);
+
+  useEffect(() => {
     const unsub = api.subscribeSnapshot(api.currenciesQuery(), (snap) => {
       const allCurrencies = docsFromSnapshot<Currency>(snap);
       setCurrencies(allCurrencies.filter((item) => item.isActive));
@@ -58,9 +72,11 @@ export default function AdminProductsPage() {
 
   function startCreate() {
     setMessage(null);
+    const firstCategory = categories[0];
     const defaultCurrency = currencies.find((item) => item.isDefault) ?? currencies[0];
     setDraft({
       ...newProductDraft(),
+      categoryId: firstCategory?.id || "",
       currencyCode: defaultCurrency?.code ?? "",
       currencySymbol: defaultCurrency?.symbol ?? "",
     });
@@ -77,13 +93,24 @@ export default function AdminProductsPage() {
 
   async function onSave() {
     setMessage(null);
+    if (!draft.name.trim()) {
+      setMessage("اسم المنتج مطلوب.");
+      return;
+    }
+    if (!draft.categoryId) {
+      setMessage("يرجى اختيار القسم قبل الحفظ.");
+      return;
+    }
     setBusy(true);
     try {
       let images = draft.images ?? [];
       const selectedCurrency = currencies.find((item) => item.code === draft.currencyCode);
       if (file) {
         const pid = draft.id || api.getNewId("products");
-        const url = await uploadPublicImage(file, `products/${pid}/${Date.now()}-${file.name}`);
+        const url = await uploadPublicImage(
+          file,
+          `products/${draft.categoryId || "uncategorized"}/${pid}/${Date.now()}-${file.name}`,
+        );
         images = [url, ...images];
         setDraft((p) => ({ ...p, id: pid, images }));
       }
@@ -94,8 +121,9 @@ export default function AdminProductsPage() {
         currencySymbol: selectedCurrency?.symbol ?? draft.currencySymbol ?? "",
       });
       setOpen(false);
-    } catch {
-      setMessage("تعذر الحفظ. تأكد من قواعد Firestore/Storage.");
+    } catch (error) {
+      console.error("Product save error:", error);
+      setMessage(`تعذر الحفظ: ${getErrorText(error)}`);
     } finally {
       setBusy(false);
     }
@@ -106,8 +134,9 @@ export default function AdminProductsPage() {
     try {
       await deleteProduct(deleteId);
       setDeleteId(null);
-    } catch {
-      setMessage("تعذر الحذف.");
+    } catch (error) {
+      console.error("Product delete error:", error);
+      setMessage(`تعذر الحذف: ${getErrorText(error)}`);
     }
   }
 
@@ -198,6 +227,9 @@ export default function AdminProductsPage() {
                         السعر: {p.price ?? 0} {p.currencySymbol || p.currencyCode || ""} — المخزون: {p.stock ?? 0} —{" "}
                         {p.isActive ? "نشط" : "مخفي"}
                       </div>
+                      <div className="mt-1 text-xs text-zinc-500">
+                        القسم: {categories.find((c) => c.id === p.categoryId)?.name || "غير محدد"}
+                      </div>
                     </div>
                   </div>
 
@@ -257,6 +289,22 @@ export default function AdminProductsPage() {
                     className="h-12 rounded-2xl border border-zinc-200 px-4 outline-none focus:border-zinc-400"
                     inputMode="decimal"
                   />
+                </label>
+
+                <label className="grid gap-2 text-sm font-semibold text-zinc-800">
+                  القسم
+                  <select
+                    value={draft.categoryId || ""}
+                    onChange={(e) => setDraft((p) => ({ ...p, categoryId: e.target.value }))}
+                    className="h-12 rounded-2xl border border-zinc-200 px-4 outline-none focus:border-zinc-400"
+                  >
+                    <option value="">اختر القسم</option>
+                    {categories.map((category) => (
+                      <option key={category.id} value={category.id}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
                 </label>
 
                 <label className="grid gap-2 text-sm font-semibold text-zinc-800">
