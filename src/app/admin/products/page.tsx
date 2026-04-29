@@ -5,18 +5,20 @@ import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { SiteHeader } from "@/components/SiteHeader";
 import FirestoreApi from "@/services/firestoreApi";
-import type { Product } from "@/types/store";
+import type { Currency, Product } from "@/types/store";
 import { deleteProduct, newProductDraft, upsertProduct } from "@/services/productsApi";
 import { docsFromSnapshot } from "@/services/snapshot";
 import { uploadPublicImage } from "@/services/storageApi";
 import { AppModal } from "@/components/ui/AppModal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { InlineAlert, LoadingState } from "@/components/ui/Feedback";
+import { ImagePickerField } from "@/components/ui/ImagePickerField";
 
 const api = FirestoreApi.Api;
 
 export default function AdminProductsPage() {
   const [items, setItems] = useState<Product[]>([]);
+  const [currencies, setCurrencies] = useState<Currency[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [open, setOpen] = useState(false);
@@ -39,11 +41,24 @@ export default function AdminProductsPage() {
     return () => unsub();
   }, []);
 
+  useEffect(() => {
+    const unsub = api.subscribeSnapshot(api.currenciesQuery(), (snap) => {
+      const allCurrencies = docsFromSnapshot<Currency>(snap);
+      setCurrencies(allCurrencies.filter((item) => item.isActive));
+    });
+    return () => unsub();
+  }, []);
+
   const total = useMemo(() => items.length, [items.length]);
 
   function startCreate() {
     setMessage(null);
-    setDraft(newProductDraft());
+    const defaultCurrency = currencies.find((item) => item.isDefault) ?? currencies[0];
+    setDraft({
+      ...newProductDraft(),
+      currencyCode: defaultCurrency?.code ?? "",
+      currencySymbol: defaultCurrency?.symbol ?? "",
+    });
     setFile(null);
     setOpen(true);
   }
@@ -60,13 +75,19 @@ export default function AdminProductsPage() {
     setBusy(true);
     try {
       let images = draft.images ?? [];
+      const selectedCurrency = currencies.find((item) => item.code === draft.currencyCode);
       if (file) {
         const pid = draft.id || api.getNewId("products");
         const url = await uploadPublicImage(file, `products/${pid}/${Date.now()}-${file.name}`);
         images = [url, ...images];
         setDraft((p) => ({ ...p, id: pid, images }));
       }
-      await upsertProduct({ ...draft, images });
+      await upsertProduct({
+        ...draft,
+        images,
+        currencyCode: selectedCurrency?.code ?? draft.currencyCode ?? "",
+        currencySymbol: selectedCurrency?.symbol ?? draft.currencySymbol ?? "",
+      });
       setOpen(false);
     } catch {
       setMessage("تعذر الحفظ. تأكد من قواعد Firestore/Storage.");
@@ -143,7 +164,8 @@ export default function AdminProductsPage() {
                     <div>
                       <div className="text-sm font-bold text-zinc-900">{p.name || "بدون اسم"}</div>
                       <div className="mt-1 text-xs text-zinc-500">
-                        السعر: {p.price ?? 0} — المخزون: {p.stock ?? 0} — {p.isActive ? "نشط" : "مخفي"}
+                        السعر: {p.price ?? 0} {p.currencySymbol || p.currencyCode || ""} — المخزون: {p.stock ?? 0} —{" "}
+                        {p.isActive ? "نشط" : "مخفي"}
                       </div>
                     </div>
                   </div>
@@ -205,6 +227,30 @@ export default function AdminProductsPage() {
                 </label>
 
                 <label className="grid gap-2 text-sm font-semibold text-zinc-800">
+                  العملة
+                  <select
+                    value={draft.currencyCode || ""}
+                    onChange={(e) => {
+                      const code = e.target.value;
+                      const selectedCurrency = currencies.find((item) => item.code === code);
+                      setDraft((p) => ({
+                        ...p,
+                        currencyCode: code,
+                        currencySymbol: selectedCurrency?.symbol ?? "",
+                      }));
+                    }}
+                    className="h-12 rounded-2xl border border-zinc-200 px-4 outline-none focus:border-zinc-400"
+                  >
+                    <option value="">اختر العملة</option>
+                    {currencies.map((currency) => (
+                      <option key={currency.id} value={currency.code}>
+                        {currency.code} - {currency.name} ({currency.symbol})
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="grid gap-2 text-sm font-semibold text-zinc-800">
                   المخزون
                   <input
                     value={String(draft.stock ?? 0)}
@@ -241,14 +287,14 @@ export default function AdminProductsPage() {
                   منتج مميز
                 </label>
 
-                <label className="grid gap-2 text-sm font-semibold text-zinc-800">
-                  رفع صورة (اختياري)
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-                  />
-                </label>
+                <ImagePickerField
+                  label="صورة المنتج"
+                  file={file}
+                  existingUrl={draft.images?.[0] || ""}
+                  onChangeFile={setFile}
+                  onClearFile={() => setFile(null)}
+                  onClearExisting={() => setDraft((p) => ({ ...p, images: (p.images ?? []).slice(1) }))}
+                />
           </div>
         </AppModal>
 

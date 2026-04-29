@@ -12,6 +12,7 @@ import { uploadPublicImage } from "@/services/storageApi";
 import { AppModal } from "@/components/ui/AppModal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { InlineAlert, LoadingState } from "@/components/ui/Feedback";
+import { ImagePickerField } from "@/components/ui/ImagePickerField";
 
 const api = FirestoreApi.Api;
 
@@ -201,14 +202,14 @@ export default function AdminBannersPage() {
                   />
                 </label>
 
-                <label className="grid gap-2 text-sm font-semibold text-zinc-800">
-                  رفع صورة (اختياري)
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-                  />
-                </label>
+                <ImagePickerField
+                  label="صورة البانر"
+                  file={file}
+                  existingUrl={draft.image || ""}
+                  onChangeFile={setFile}
+                  onClearFile={() => setFile(null)}
+                  onClearExisting={() => setDraft((p) => ({ ...p, image: "" }))}
+                />
           </div>
         </AppModal>
 

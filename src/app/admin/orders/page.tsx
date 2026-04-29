@@ -4,9 +4,10 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { SiteHeader } from "@/components/SiteHeader";
 import FirestoreApi from "@/services/firestoreApi";
-import type { Order, OrderStatus } from "@/types/store";
+import type { Currency, Order, OrderStatus } from "@/types/store";
 import { updateOrderStatus } from "@/services/ordersApi";
 import { docsFromSnapshot } from "@/services/snapshot";
+import { groupTotalsByCurrency, totalInDefaultCurrency } from "@/services/currencyTotals";
 import type { CollectionReference } from "firebase/firestore";
 
 const api = FirestoreApi.Api;
@@ -14,6 +15,7 @@ const statuses: OrderStatus[] = ["جديد", "قيد التنفيذ", "تم ال
 
 export default function AdminOrdersPage() {
   const [items, setItems] = useState<Order[]>([]);
+  const [currencies, setCurrencies] = useState<Currency[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<OrderStatus | "الكل">("الكل");
 
@@ -27,6 +29,13 @@ export default function AdminOrdersPage() {
       },
       () => setLoading(false),
     );
+    return () => unsub();
+  }, []);
+
+  useEffect(() => {
+    const unsub = api.subscribeSnapshot(api.currenciesQuery(), (snap) => {
+      setCurrencies(docsFromSnapshot<Currency>(snap).filter((c) => c.isActive));
+    });
     return () => unsub();
   }, []);
 
@@ -96,10 +105,7 @@ export default function AdminOrdersPage() {
           ) : (
             <div className="mt-6 grid grid-cols-1 gap-3">
               {shown.map((o) => (
-                <div
-                  key={o.id}
-                  className="rounded-2xl border border-zinc-200 p-4"
-                >
+                <div key={o.id} className="rounded-2xl border border-zinc-200 p-4">
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                       <div className="text-sm font-bold text-zinc-900">
@@ -111,7 +117,10 @@ export default function AdminOrdersPage() {
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="rounded-full bg-zinc-100 px-3 py-1 text-xs font-semibold text-zinc-700">
-                        الإجمالي: {o.total}
+                        الإجمالي بالافتراضية: {totalInDefaultCurrency(o.items || [], currencies).total.toFixed(2)}{" "}
+                        {totalInDefaultCurrency(o.items || [], currencies).defaultCurrency?.symbol ||
+                          totalInDefaultCurrency(o.items || [], currencies).defaultCurrency?.code ||
+                          ""}
                       </span>
                       <select
                         value={o.status}
@@ -131,6 +140,13 @@ export default function AdminOrdersPage() {
 
                   <div className="mt-3 text-xs text-zinc-500">
                     عدد العناصر: {o.items?.length ?? 0}
+                  </div>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {(o.totalsByCurrency?.length ? o.totalsByCurrency : groupTotalsByCurrency(o.items || [])).map((row) => (
+                      <span key={`${o.id}-${row.code}-${row.symbol}`} className="rounded-full bg-zinc-100 px-3 py-1 text-xs font-bold text-zinc-800">
+                        {row.total} {row.symbol || row.code}
+                      </span>
+                    ))}
                   </div>
                 </div>
               ))}

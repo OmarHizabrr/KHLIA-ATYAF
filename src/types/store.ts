@@ -18,6 +18,8 @@ export type Product = {
   name: string;
   description: string;
   price: number;
+  currencyCode?: string;
+  currencySymbol?: string;
   oldPrice?: number;
   images: string[];
   categoryId: string;
@@ -34,8 +36,16 @@ export type OrderItem = {
   productId: string;
   name: string;
   price: number;
+  currencyCode?: string;
+  currencySymbol?: string;
   qty: number;
   image?: string;
+};
+
+export type CurrencyTotal = {
+  code: string;
+  symbol: string;
+  total: number;
 };
 
 export type Order = {
@@ -45,6 +55,7 @@ export type Order = {
   address: string;
   items: OrderItem[];
   total: number;
+  totalsByCurrency?: CurrencyTotal[];
   status: OrderStatus;
   createdAt?: unknown;
 };

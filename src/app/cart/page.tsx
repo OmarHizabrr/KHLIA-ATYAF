@@ -1,17 +1,28 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { getCartItems, removeFromCart, updateCartQty } from "@/services/cartStore";
-import type { OrderItem } from "@/types/store";
+import FirestoreApi from "@/services/firestoreApi";
+import { docsFromSnapshot } from "@/services/snapshot";
+import type { Currency, OrderItem } from "@/types/store";
+import { groupTotalsByCurrency, totalInDefaultCurrency } from "@/services/currencyTotals";
+
+const api = FirestoreApi.Api;
 
 export default function CartPage() {
   const [items, setItems] = useState<OrderItem[]>(() => getCartItems());
+  const [currencies, setCurrencies] = useState<Currency[]>([]);
+  const totalsByCurrency = useMemo(() => groupTotalsByCurrency(items), [items]);
+  const totalDefault = useMemo(() => totalInDefaultCurrency(items, currencies), [items, currencies]);
 
-  const total = useMemo(() => {
-    return items.reduce((sum, it) => sum + (it.price || 0) * (it.qty || 0), 0);
-  }, [items]);
+  useEffect(() => {
+    const unsub = api.subscribeSnapshot(api.currenciesQuery(), (snap) => {
+      setCurrencies(docsFromSnapshot<Currency>(snap).filter((c) => c.isActive));
+    });
+    return () => unsub();
+  }, []);
 
   function onQty(productId: string, qty: number) {
     updateCartQty(productId, qty);
@@ -53,7 +64,8 @@ export default function CartPage() {
                     <div>
                       <div className="text-sm font-bold text-zinc-900">{it.name}</div>
                       <div className="mt-1 text-xs text-zinc-500">
-                        السعر: {it.price} — المجموع: {(it.price || 0) * (it.qty || 0)}
+                        السعر: {it.price} {it.currencySymbol || it.currencyCode || "ر.س"} — المجموع: {(it.price || 0) * (it.qty || 0)}{" "}
+                        {it.currencySymbol || it.currencyCode || "ر.س"}
                       </div>
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
@@ -75,9 +87,19 @@ export default function CartPage() {
                 ))}
               </div>
 
-              <div className="mt-6 flex items-center justify-between rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm">
-                <span className="font-semibold text-zinc-700">الإجمالي</span>
-                <span className="font-bold text-zinc-900">{total}</span>
+              <div className="mt-6 rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm">
+                <div className="font-semibold text-zinc-700">الإجمالي حسب العملة</div>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {totalsByCurrency.map((row) => (
+                    <span key={`${row.code}-${row.symbol}`} className="rounded-full bg-white px-3 py-1 text-xs font-bold text-zinc-900">
+                      {row.total} {row.symbol || row.code}
+                    </span>
+                  ))}
+                </div>
+                <div className="mt-3 border-t border-zinc-200 pt-3 font-bold text-zinc-900">
+                  الإجمالي بالعملة الافتراضية: {totalDefault.total.toFixed(2)}{" "}
+                  {totalDefault.defaultCurrency?.symbol || totalDefault.defaultCurrency?.code || ""}
+                </div>
               </div>
             </div>
           )}

@@ -52,6 +52,8 @@ export default function ProductDetailsPage() {
       productId: product.id,
       name: product.name,
       price: product.price,
+      currencyCode: product.currencyCode || "",
+      currencySymbol: product.currencySymbol || "",
       qty: 1,
       image: product.images?.[0] || "",
     });
@@ -118,7 +120,7 @@ export default function ProductDetailsPage() {
                   <div className="mt-1 text-sm text-zinc-500">{product.description}</div>
                 </div>
                 <div className="rounded-full bg-zinc-900 px-4 py-2 text-sm font-semibold text-white">
-                  {product.price} ر.س
+                  {product.price} {product.currencySymbol || product.currencyCode || "ر.س"}
                 </div>
               </div>
 

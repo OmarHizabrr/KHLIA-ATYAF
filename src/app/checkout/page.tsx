@@ -1,23 +1,35 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { clearCart, getCartItems } from "@/services/cartStore";
-import type { OrderItem } from "@/types/store";
+import FirestoreApi from "@/services/firestoreApi";
+import { docsFromSnapshot } from "@/services/snapshot";
+import type { Currency, OrderItem } from "@/types/store";
 import { createOrder } from "@/services/ordersApi";
+import { groupTotalsByCurrency, totalInDefaultCurrency } from "@/services/currencyTotals";
+
+const api = FirestoreApi.Api;
 
 export default function CheckoutPage() {
   const [items] = useState<OrderItem[]>(() => getCartItems());
+  const [currencies, setCurrencies] = useState<Currency[]>([]);
   const [customerName, setCustomerName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
-  const total = useMemo(() => {
-    return items.reduce((sum, it) => sum + (it.price || 0) * (it.qty || 0), 0);
-  }, [items]);
+  const totalsByCurrency = useMemo(() => groupTotalsByCurrency(items), [items]);
+  const totalDefault = useMemo(() => totalInDefaultCurrency(items, currencies), [items, currencies]);
+
+  useEffect(() => {
+    const unsub = api.subscribeSnapshot(api.currenciesQuery(), (snap) => {
+      setCurrencies(docsFromSnapshot<Currency>(snap).filter((c) => c.isActive));
+    });
+    return () => unsub();
+  }, []);
 
   async function onSubmit() {
     setMessage(null);
@@ -36,7 +48,8 @@ export default function CheckoutPage() {
         phone,
         address,
         items,
-        total,
+        total: totalDefault.total,
+        totalsByCurrency,
         status: "جديد",
       });
       clearCart();
@@ -64,7 +77,20 @@ export default function CheckoutPage() {
             <span className="font-semibold text-zinc-800">
               عدد العناصر: {items.length}
             </span>
-            <span className="font-bold text-zinc-900">الإجمالي: {total}</span>
+            <span className="font-bold text-zinc-900">
+              الإجمالي بالافتراضية: {totalDefault.total.toFixed(2)}{" "}
+              {totalDefault.defaultCurrency?.symbol || totalDefault.defaultCurrency?.code || ""}
+            </span>
+          </div>
+          <div className="mb-4 rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm">
+            <div className="font-semibold text-zinc-700">تجميع حسب العملة</div>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {totalsByCurrency.map((row) => (
+                <span key={`${row.code}-${row.symbol}`} className="rounded-full bg-white px-3 py-1 text-xs font-bold text-zinc-900">
+                  {row.total} {row.symbol || row.code}
+                </span>
+              ))}
+            </div>
           </div>
 
           <div className="grid grid-cols-1 gap-4">

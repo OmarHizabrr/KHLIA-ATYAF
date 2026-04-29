@@ -9,6 +9,8 @@ export function newProductDraft(): Product {
     name: "",
     description: "",
     price: 0,
+    currencyCode: "",
+    currencySymbol: "",
     oldPrice: undefined,
     images: [],
     categoryId: "",

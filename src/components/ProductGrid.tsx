@@ -33,7 +33,7 @@ export function ProductGrid({ products }: { products: Product[] }) {
               </div>
             </div>
             <div className="shrink-0 rounded-full bg-zinc-900 px-3 py-1 text-sm font-semibold text-white">
-              {p.price} ر.س
+              {p.price} {p.currencySymbol || p.currencyCode || "ر.س"}
             </div>
           </div>
 
@@ -50,6 +50,8 @@ export function ProductGrid({ products }: { products: Product[] }) {
                   productId: p.id,
                   name: p.name,
                   price: p.price,
+                  currencyCode: p.currencyCode || "",
+                  currencySymbol: p.currencySymbol || "",
                   qty: 1,
                   image: p.images?.[0] || "",
                 })
