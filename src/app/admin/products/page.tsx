@@ -13,6 +13,7 @@ import { AppModal } from "@/components/ui/AppModal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { InlineAlert, LoadingState } from "@/components/ui/Feedback";
 import { ImagePickerField } from "@/components/ui/ImagePickerField";
+import { FullImageModal } from "@/components/ui/FullImageModal";
 
 const api = FirestoreApi.Api;
 
@@ -27,6 +28,9 @@ export default function AdminProductsPage() {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
+  const [lightboxAlt, setLightboxAlt] = useState<string>("");
 
   useEffect(() => {
     const q = api.productsAdminQuery();
@@ -150,7 +154,7 @@ export default function AdminProductsPage() {
                   className="flex flex-col gap-3 rounded-2xl border border-zinc-200 p-4 transition-colors hover:bg-zinc-50 sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="h-14 w-14 overflow-hidden rounded-2xl bg-zinc-100 p-1">
+                    <div className="relative h-14 w-14 overflow-hidden rounded-2xl bg-zinc-100 p-1">
                       {p.images?.[0] ? (
                         <Image
                           src={p.images[0]}
@@ -159,6 +163,32 @@ export default function AdminProductsPage() {
                           height={56}
                           className="h-full w-full object-contain"
                         />
+                      ) : null}
+
+                      {p.images?.[0] ? (
+                        <button
+                          type="button"
+                          aria-label="عرض الصورة"
+                          onClick={() => {
+                            setLightboxSrc(p.images?.[0] || null);
+                            setLightboxAlt(p.name);
+                          }}
+                          className="absolute right-1 top-1 z-10 rounded-full p-1 text-zinc-600 opacity-50 hover:opacity-90 hover:bg-black/10"
+                        >
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path
+                              d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinejoin="round"
+                            />
+                            <path
+                              d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                            />
+                          </svg>
+                        </button>
                       ) : null}
                     </div>
                     <div>
@@ -305,6 +335,13 @@ export default function AdminProductsPage() {
           confirmText="حذف"
           onConfirm={confirmDelete}
           onCancel={() => setDeleteId(null)}
+        />
+
+        <FullImageModal
+          open={Boolean(lightboxSrc)}
+          src={lightboxSrc || ""}
+          alt={lightboxAlt}
+          onClose={() => setLightboxSrc(null)}
         />
       </main>
     </div>

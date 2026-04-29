@@ -1,11 +1,16 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { addToCart } from "@/services/cartStore";
 import type { Product } from "@/types/store";
+import { FullImageModal } from "@/components/ui/FullImageModal";
 
 export function ProductGrid({ products }: { products: Product[] }) {
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
+  const [lightboxAlt, setLightboxAlt] = useState<string>("");
+
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {products.map((p) => (
@@ -13,7 +18,7 @@ export function ProductGrid({ products }: { products: Product[] }) {
           key={p.id}
           className="rounded-3xl border border-zinc-200 bg-white p-5 transition-shadow hover:bg-zinc-50 hover:shadow-sm"
         >
-          <div className="mb-4 flex h-40 items-center justify-center overflow-hidden rounded-2xl bg-zinc-100 p-2">
+          <div className="relative mb-4 flex h-40 items-center justify-center overflow-hidden rounded-2xl bg-zinc-100 p-2">
             {p.images?.[0] ? (
               <Image
                 src={p.images[0]}
@@ -22,6 +27,32 @@ export function ProductGrid({ products }: { products: Product[] }) {
                 height={600}
                 className="h-full w-full object-contain"
               />
+            ) : null}
+
+            {p.images?.[0] ? (
+              <button
+                type="button"
+                aria-label="عرض الصورة"
+                onClick={() => {
+                  setLightboxSrc(p.images?.[0] || null);
+                  setLightboxAlt(p.name);
+                }}
+                className="absolute right-2 top-2 z-10 rounded-full p-2 text-zinc-600 opacity-50 hover:opacity-90 hover:bg-black/10"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path
+                    d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  />
+                </svg>
+              </button>
             ) : null}
           </div>
 
@@ -63,6 +94,13 @@ export function ProductGrid({ products }: { products: Product[] }) {
           </div>
         </div>
       ))}
+
+      <FullImageModal
+        open={Boolean(lightboxSrc)}
+        src={lightboxSrc || ""}
+        alt={lightboxAlt}
+        onClose={() => setLightboxSrc(null)}
+      />
     </div>
   );
 }
