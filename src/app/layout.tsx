@@ -16,6 +16,11 @@ export const metadata: Metadata = {
   title: "خلية أطياف | KHLIA ATYAF",
   description:
     "منصة متجر إلكتروني حديثة تعمل على الجوال والويب ويمكن تثبيتها كتطبيق (PWA).",
+  icons: {
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({
