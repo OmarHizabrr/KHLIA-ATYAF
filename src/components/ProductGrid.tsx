@@ -11,16 +11,16 @@ export function ProductGrid({ products }: { products: Product[] }) {
       {products.map((p) => (
         <div
           key={p.id}
-          className="rounded-3xl border border-zinc-200 bg-white p-5"
+          className="rounded-3xl border border-zinc-200 bg-white p-5 transition-shadow hover:bg-zinc-50 hover:shadow-sm"
         >
-          <div className="mb-4 h-40 overflow-hidden rounded-2xl bg-zinc-100">
+          <div className="mb-4 flex h-40 items-center justify-center overflow-hidden rounded-2xl bg-zinc-100 p-2">
             {p.images?.[0] ? (
               <Image
                 src={p.images[0]}
                 alt={p.name}
                 width={800}
                 height={600}
-                className="h-40 w-full object-cover"
+                className="h-full w-full object-contain"
               />
             ) : null}
           </div>

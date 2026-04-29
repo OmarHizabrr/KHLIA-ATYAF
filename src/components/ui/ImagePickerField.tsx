@@ -43,8 +43,8 @@ export function ImagePickerField({
 
       {preview ? (
         <div className="mt-2 rounded-2xl border border-zinc-200 bg-zinc-50 p-3">
-          <div className="relative h-36 w-full overflow-hidden rounded-xl bg-zinc-100">
-            <Image src={preview} alt="preview" fill className="object-cover" />
+          <div className="relative h-36 w-full overflow-hidden rounded-xl bg-zinc-100 p-1">
+            <Image src={preview} alt="preview" fill className="object-contain" />
           </div>
           <div className="mt-2 text-xs text-zinc-500">
             {file ? `معاينة قبل الحفظ: ${file.name}` : "هذه هي الصورة المحفوظة حاليا."}

@@ -147,17 +147,17 @@ export default function AdminProductsPage() {
               {items.map((p) => (
                 <div
                   key={p.id}
-                  className="flex flex-col gap-3 rounded-2xl border border-zinc-200 p-4 sm:flex-row sm:items-center sm:justify-between"
+                  className="flex flex-col gap-3 rounded-2xl border border-zinc-200 p-4 transition-colors hover:bg-zinc-50 sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="h-14 w-14 overflow-hidden rounded-2xl bg-zinc-100">
+                    <div className="h-14 w-14 overflow-hidden rounded-2xl bg-zinc-100 p-1">
                       {p.images?.[0] ? (
                         <Image
                           src={p.images[0]}
                           alt={p.name}
                           width={56}
                           height={56}
-                          className="h-14 w-14 object-cover"
+                          className="h-full w-full object-contain"
                         />
                       ) : null}
                     </div>

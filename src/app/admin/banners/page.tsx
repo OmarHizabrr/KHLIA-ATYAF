@@ -126,17 +126,17 @@ export default function AdminBannersPage() {
               {items.map((b) => (
                 <div
                   key={b.id}
-                  className="flex flex-col gap-3 rounded-2xl border border-zinc-200 p-4 sm:flex-row sm:items-center sm:justify-between"
+                  className="flex flex-col gap-3 rounded-2xl border border-zinc-200 p-4 transition-colors hover:bg-zinc-50 sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="h-14 w-24 overflow-hidden rounded-2xl bg-zinc-100">
+                    <div className="h-14 w-24 overflow-hidden rounded-2xl bg-zinc-100 p-1">
                       {b.image ? (
                         <Image
                           src={b.image}
                           alt={b.title}
                           width={96}
                           height={56}
-                          className="h-14 w-24 object-cover"
+                          className="h-full w-full object-contain"
                         />
                       ) : null}
                     </div>

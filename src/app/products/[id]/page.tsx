@@ -85,27 +85,27 @@ export default function ProductDetailsPage() {
         ) : (
           <section className="grid grid-cols-1 gap-6 rounded-3xl border border-zinc-200 bg-white p-6 md:grid-cols-2">
             <div className="space-y-3">
-              <div className="h-72 overflow-hidden rounded-2xl bg-zinc-100">
+              <div className="flex h-72 items-center justify-center overflow-hidden rounded-2xl bg-zinc-100 p-2">
                 {product.images?.[0] ? (
                   <Image
                     src={product.images[0]}
                     alt={product.name}
                     width={1200}
                     height={900}
-                    className="h-72 w-full object-cover"
+                    className="h-full w-full object-contain"
                   />
                 ) : null}
               </div>
               {product.images?.length ? (
                 <div className="grid grid-cols-4 gap-3">
                   {product.images.slice(0, 4).map((src, i) => (
-                    <div key={src + i} className="h-16 overflow-hidden rounded-xl bg-zinc-100">
+                    <div key={src + i} className="flex h-16 overflow-hidden items-center justify-center rounded-xl bg-zinc-100 p-1">
                       <Image
                         src={src}
                         alt={product.name}
                         width={240}
                         height={240}
-                        className="h-16 w-full object-cover"
+                        className="h-full w-full object-contain"
                       />
                     </div>
                   ))}
